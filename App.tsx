@@ -8,33 +8,44 @@ interface Todo {
 }
 
 const useGlobalState = createGlobalState<Todo[]>([
-  { id: 10, name: 'react' },
-  { id: 20, name: 'vue' },
+  { id: 1, name: 'react' },
+  { id: 2, name: 'vue' },
 ]);
 
-const MyList: React.FunctionComponent = () => {
-  const [state] = useGlobalState();
+const useGlobalState2 = createGlobalState<Todo[]>([
+  { id: 1, name: 'node' },
+  { id: 2, name: 'go' },
+]);
+
+const MyList: React.FunctionComponent<{
+  useStateHook: ReturnType<typeof createGlobalState>;
+}> = ({ useStateHook }) => {
+  const [state] = useStateHook();
+  const todos = state as Todo[];
   return (
     <ul>
-      {state.map((item) => (
-        <li key={item.id}>{item.name}</li>
+      {todos.map((todo) => (
+        <li key={todo.id}>{todo.name}</li>
       ))}
     </ul>
   );
 };
 
-const AddTodo: React.FunctionComponent = () => {
-  const [state, setState] = useGlobalState();
+const AddTodo: React.FunctionComponent<{
+  useStateHook: ReturnType<typeof createGlobalState>;
+}> = ({ useStateHook }) => {
+  const [state, setState] = useStateHook();
+  const todos = state as Todo[];
   const inputRef = React.useRef(null);
 
   const addItem = () => {
     if (inputRef.current) {
-      const lastId = state[state.length - 1].id;
+      const lastId = todos[todos.length - 1].id;
       const addedItem = {
         id: lastId + 1,
         name: inputRef.current.value,
       };
-      setState([...state, addedItem]);
+      setState([...todos, addedItem]);
       inputRef.current.value = null;
     }
   };
@@ -50,9 +61,18 @@ const AddTodo: React.FunctionComponent = () => {
 export default function App() {
   return (
     <div>
-      <MyList />
-      <AddTodo />
-      <MyList />
+      <div>
+        <MyList useStateHook={useGlobalState} />
+        <AddTodo useStateHook={useGlobalState} />
+        <MyList useStateHook={useGlobalState} />
+      </div>
+      <hr />
+
+      <div>
+        <MyList useStateHook={useGlobalState2} />
+        <AddTodo useStateHook={useGlobalState2} />
+        <MyList useStateHook={useGlobalState2} />
+      </div>
     </div>
   );
 }
