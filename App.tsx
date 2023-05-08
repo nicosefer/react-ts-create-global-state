@@ -18,9 +18,9 @@ const useGlobalState2 = createGlobalState<Todo[]>([
 ]);
 
 const MyList: React.FunctionComponent<{
-  useStateHook: ReturnType<typeof createGlobalState>;
-}> = ({ useStateHook }) => {
-  const [state] = useStateHook();
+  globalStateHook: ReturnType<typeof createGlobalState>;
+}> = ({ globalStateHook }) => {
+  const [state] = globalStateHook();
   const todos = state as Todo[];
   return (
     <ul>
@@ -32,29 +32,31 @@ const MyList: React.FunctionComponent<{
 };
 
 const AddTodo: React.FunctionComponent<{
-  useStateHook: ReturnType<typeof createGlobalState>;
-}> = ({ useStateHook }) => {
-  const [state, setState] = useStateHook();
+  globalStateHook: ReturnType<typeof createGlobalState>;
+}> = ({ globalStateHook }) => {
+  const [state, setState] = globalStateHook();
   const todos = state as Todo[];
   const inputRef = React.useRef(null);
 
-  const addItem = () => {
-    if (inputRef.current) {
-      const lastId = todos[todos.length - 1].id;
-      const addedItem = {
-        id: lastId + 1,
-        name: inputRef.current.value,
-      };
-      setState([...todos, addedItem]);
-      inputRef.current.value = null;
+  const addItem = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!inputRef?.current?.value) {
+      return;
     }
+    const lastId = todos[todos.length - 1].id;
+    const addedItem = {
+      id: lastId + 1,
+      name: inputRef.current.value,
+    };
+    setState([...todos, addedItem]);
+    inputRef.current.value = null;
   };
 
   return (
-    <div>
+    <form onSubmit={addItem}>
       <input ref={inputRef} />
       <button onClick={addItem}>Add item</button>
-    </div>
+    </form>
   );
 };
 
@@ -62,16 +64,16 @@ export default function App() {
   return (
     <div>
       <div>
-        <MyList useStateHook={useGlobalState} />
-        <AddTodo useStateHook={useGlobalState} />
-        <MyList useStateHook={useGlobalState} />
+        <MyList globalStateHook={useGlobalState} />
+        <AddTodo globalStateHook={useGlobalState} />
+        <MyList globalStateHook={useGlobalState} />
       </div>
       <hr />
 
       <div>
-        <MyList useStateHook={useGlobalState2} />
-        <AddTodo useStateHook={useGlobalState2} />
-        <MyList useStateHook={useGlobalState2} />
+        <MyList globalStateHook={useGlobalState2} />
+        <AddTodo globalStateHook={useGlobalState2} />
+        <MyList globalStateHook={useGlobalState2} />
       </div>
     </div>
   );
